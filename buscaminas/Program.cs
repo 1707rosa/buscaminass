@@ -65,16 +65,24 @@ class Campo
     public async Task DibujarCampo()
     {
         Console.SetCursorPosition(0, 0);
-        for (int y = 0; y < Tamaño; y++)
+        List<string> mines = new List<string>();
+        int t = Tamaño;
+        int t2 = Tamaño;
+        for (int y = 1; y <= t; y++)
         {
-            for (int x = 0; x < Tamaño; x++)
+            for (int x = 1; x <= t2; x++)
             {
-                if (tablero[x, y])
-                    Console.Write(". ");
-               
+                if (tablero[x-1, y-1])
+                {
+                    Console.Write("M");
+                    mines.Add($"{x},{y}");
+                }
+                else
+                {
+                    Console.Write("*");
+                }
             }
             Console.WriteLine();
-            await Task.Delay(50);
         }
     }
 }
@@ -98,15 +106,21 @@ class Persona
 
     public async Task CruzarCampoAsync()
     {
-        while (PosY < campo.Tamaño - 1 && EstaViva)
+        while (PosY < campo.Tamaño - 2 && EstaViva)
         {
             PosY++;
             if (campo.HayMina(PosX, PosY))
             {
                 EstaViva = false;
-                Console.SetCursorPosition(PosX * 4, PosY);
+                Console.SetCursorPosition(PosX, PosY);
                 Console.Write("X");
-                break; 
+
+                break;
+            }
+            else
+            {
+                Console.SetCursorPosition(PosX, PosY);
+                Console.Write("S");
             }
             await Task.Delay(50);
         }
