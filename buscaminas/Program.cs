@@ -4,11 +4,12 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-
 class Program
 {
     static async Task Main()
     {
+       // Console.SetWindowSize(120, 40);
+        //Console.SetBufferSize(200, 60);
         var simulacion = new Simulacion();
         await simulacion.EjecutarAsync();
     }
@@ -60,6 +61,22 @@ class Campo
             return false;
         }
     }
+
+    public void DibujarCampo()
+    {
+        Console.SetCursorPosition(0, 0);
+        for (int y = 0; y < Tamaño; y++)
+        {
+            for (int x = 0; x < Tamaño; x++)
+            {
+                if (tablero[x, y])
+                    Console.Write("*  ");
+                else
+                    Console.Write("   ");
+            }
+            Console.WriteLine();
+        }
+    }
 }
 
 class Persona
@@ -87,7 +104,13 @@ class Persona
             if (campo.HayMina(PosX, PosY))
             {
                 EstaViva = false;
-                Console.WriteLine($"¡Persona {Id} pisó una mina en ({PosX}, {PosY})!");
+                Console.SetCursorPosition(PosX * 4, PosY);
+                Console.Write("X");
+            }
+            else
+            {
+                Console.SetCursorPosition(PosX * 4, PosY);
+                Console.Write("S");
             }
             await Task.Delay(50);
         }
@@ -116,7 +139,8 @@ class Desactivador
             if (campo.DesactivarMina(x, y))
             {
                 MinasDesactivadas++;
-                Console.WriteLine($"Desactivador {Id} desactivó una mina en ({x}, {y}). Restantes: {campo.MinasRestantes}");
+                Console.SetCursorPosition(x * 3, y);
+                Console.Write("   ");
             }
             await Task.Delay(30);
         }
@@ -138,16 +162,20 @@ class Simulacion
 
     public async Task EjecutarAsync()
     {
+        Console.Clear();
+        campo.DibujarCampo();
+
         var reloj = System.Diagnostics.Stopwatch.StartNew();
         var tareasPersonas = personas.Select(p => p.CruzarCampoAsync()).ToList();
         var tareasDesactivadores = desactivadores.Select(d => d.BuscarMinasAsync()).ToList();
         await Task.WhenAll(tareasPersonas.Concat(tareasDesactivadores));
         reloj.Stop();
 
+        Console.SetCursorPosition(0, campo.Tamaño + 2);
         Console.WriteLine("\n--- Resultados ---");
         Console.WriteLine($"Tiempo total: {reloj.Elapsed.TotalSeconds:F2} segundos");
         Console.WriteLine($"Minas desactivadas: {desactivadores.Sum(d => d.MinasDesactivadas)}");
         Console.WriteLine($"Personas sobrevivientes: {personas.Count(p => p.EstaViva)}");
-        Console.WriteLine($"Personas eliminadas: {15 - personas.Count(p => p.EstaViva)}");
+        Console.WriteLine($"Personas eliminadas: {personas.Count(p => !p.EstaViva)}");
     }
 }
