@@ -62,7 +62,7 @@ class Campo
         }
     }
 
-    public void DibujarCampo()
+    public async Task DibujarCampo()
     {
         Console.SetCursorPosition(0, 0);
         for (int y = 0; y < Tamaño; y++)
@@ -70,11 +70,11 @@ class Campo
             for (int x = 0; x < Tamaño; x++)
             {
                 if (tablero[x, y])
-                    Console.Write("*  ");
-                else
-                    Console.Write("   ");
+                    Console.Write(". ");
+               
             }
             Console.WriteLine();
+            await Task.Delay(50);
         }
     }
 }
@@ -106,13 +106,14 @@ class Persona
                 EstaViva = false;
                 Console.SetCursorPosition(PosX * 4, PosY);
                 Console.Write("X");
-            }
-            else
-            {
-                Console.SetCursorPosition(PosX * 4, PosY);
-                Console.Write("S");
+                break; 
             }
             await Task.Delay(50);
+        }
+        if (EstaViva)
+        {
+            Console.SetCursorPosition(PosX * 4, PosY);
+            Console.Write("S");
         }
     }
 }
@@ -163,7 +164,7 @@ class Simulacion
     public async Task EjecutarAsync()
     {
         Console.Clear();
-        campo.DibujarCampo();
+       await campo.DibujarCampo();
 
         var reloj = System.Diagnostics.Stopwatch.StartNew();
         var tareasPersonas = personas.Select(p => p.CruzarCampoAsync()).ToList();
